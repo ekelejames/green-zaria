@@ -122,17 +122,16 @@ graph LR
 ## 📸 Screenshots
 
 ### Registration Page
-![Registration Interface]()
+Registration Interface
 ![alt text](images/green-zaria-registration.png)
 
 ### Live Dashboard
-![Dashboard]()
+Dashboard
 *Real-time map with yellow (outreached) and green (planted) markers*
 ![alt text](images/green-zaria-dashboard.png)
 
 ### Upload Portal
-![Upload Interface]()
-*Simple photo upload interface for schools*
+Upload Interface
 ![alt text](images/green-zaria-upload.png)
 
 ---
