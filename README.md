@@ -122,16 +122,18 @@ graph LR
 ## 📸 Screenshots
 
 ### Registration Page
-![Registration Interface](https://via.placeholder.com/800x400?text=Registration+Page+-+Add+Screenshot)
-*Full-screen split layout with form and interactive map*
+![Registration Interface]()
+![alt text](images/green-zaria-registration.png)
 
 ### Live Dashboard
-![Dashboard](https://via.placeholder.com/800x400?text=Dashboard+-+Add+Screenshot)
+![Dashboard]()
 *Real-time map with yellow (outreached) and green (planted) markers*
+![alt text](images/green-zaria-dashboard.png)
 
 ### Upload Portal
-![Upload Interface](https://via.placeholder.com/800x400?text=Upload+Portal+-+Add+Screenshot)
+![Upload Interface]()
 *Simple photo upload interface for schools*
+![alt text](images/green-zaria-upload.png)
 
 ---
 
@@ -147,7 +149,7 @@ graph LR
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/yourusername/green-zaria.git
+git clone https://github.com/ekelejames/green-zaria.git
 cd green-zaria
 
 # 2. Create required directories
@@ -249,20 +251,36 @@ green-zaria/
    http://localhost:8080/register.html
    ```
 
+![alt text](images/green-zaria-registration.png)
+
 2. **Fill School Details**
    - School Name: "Government Secondary School Zaria"
    - Address: Full street address
    - Contact Person: Principal/Coordinator name
    - Contact Phone: +234 format
 
+![alt text](images/register-school.png)
+
 3. **Select Location**
    - Click on the map at the school's exact location
    - Coordinates will display below the map
+
+![alt text](images/register-school.png)
 
 4. **Submit Registration**
    - Click "Register School"
    - **Save the Access Token** - provide it to the school
    - School appears as yellow marker on dashboard
+
+![alt text](images/token.png)
+
+See message in kafka topic
+
+![alt text](images/kafka-message.png)
+
+View the location is now yellow as the school as not yet uploaded evidence of planted trees
+
+![alt text](images/yelllow.png)
 
 ### For Schools (Upload Evidence)
 
@@ -271,9 +289,13 @@ green-zaria/
    http://localhost:8080/upload.html
    ```
 
+![alt text](images/green-zaria-upload.png)
+
 2. **Enter Credentials**
    - School ID: Provided by NGO during registration
    - Access Token: Unique token from registration
+
+![alt text](images/upload.png)
 
 3. **Upload Photo**
    - Drag & drop or click to select image
@@ -284,6 +306,17 @@ green-zaria/
    - Click "Upload Evidence"
    - School marker turns green on dashboard
    - Photo visible when clicking marker
+
+![alt text](images/upload-evidence.png)
+
+See message in kafka topic
+
+![alt text](images/planted.png)
+
+View the location is now Green as the school as has now uploaded evidence of planted trees
+
+![alt text](images/planted-dashboard.png)
+
 
 ### For Monitoring (Dashboard)
 
