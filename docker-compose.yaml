@@ -1,0 +1,149 @@
+version: '3.8'
+
+services:
+  kafka:
+    environment:
+      CLUSTER_ID: 'xVwOh_nFSfq2tXYyxPXDTQ'
+      KAFKA_BROKER_ID: 2
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '2@0.0.0.0:29093'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:SASL_PLAINTEXT,EXTERNAL:PLAINTEXT,CLIENT:PLAINTEXT
+      KAFKA_LISTENERS: 'INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:29093,CLIENT://0.0.0.0:29094'
+      KAFKA_ADVERTISED_LISTENERS: 'INTERNAL://kafka:9092,CLIENT://localhost:29094,EXTERNAL://kafka:29092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+      KAFKA_LOG_DIRS: '/var/lib/kafka/data-2'
+      KAFKA_AUTHORIZER_CLASS_NAME: io.confluent.kafka.security.authorizer.ConfluentServerAuthorizer
+      KAFKA_CONFLUENT_AUDIT_LOG_ENABLED: true
+      KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "false"
+      KAFKA_SUPER_USERS: "User:admin;User:ANONYMOUS"
+      KAFKA_SASL_ENABLED_MECHANISMS: PLAIN
+      KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: PLAIN
+      KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/jaas.conf"
+      # connecting to external listener
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka:9092
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_ENABLE: 'true'
+      CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+      CONFLUENT_METRICS_REPORTER_SASL_MECHANISM: PLAIN
+      CONFLUENT_METRICS_REPORTER_SECURITY_PROTOCOL: SASL_PLAINTEXT
+      CONFLUENT_METRICS_REPORTER_SASL_JAAS_CONFIG: 'org.apache.kafka.common.security.plain.PlainLoginModule required username="admin" password="admin-secret";'
+      # Configuring debugging level
+      KAFKA_LOG4J_ROOT_LOGLEVEL: 'INFO'
+      KAFKA_LOG4J_LOGGERS: 'kafka=INFO,kafka.controller=INFO,kafka.log.LogCleaner=INFO,state.change.logger=INFO,kafka.producer.async.DefaultEventHandler=INFO'
+      KAFKA_SASL_KERBEROS_SERVICE_NAME: kafka
+    volumes:
+      - ./jaas.conf:/etc/kafka/jaas.conf
+    image: confluentinc/cp-server:7.6.0
+    container_name: kafka
+    ports:
+      - "29092:29092"
+      - "9092:9092"
+      - "29094:29094"
+    networks:
+      - green-zaria-network
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:29092 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+
+
+  control-center:
+    image: confluentinc/cp-enterprise-control-center:7.6.0
+    container_name: control-center
+    ports:
+      - "9021:9021"
+    environment:
+      CONTROL_CENTER_BOOTSTRAP_SERVERS: 'PLAINTEXT://kafka:29092'
+      CONTROL_CENTER_REPLICATION_FACTOR: 1
+      CONTROL_CENTER_INTERNAL_TOPICS_PARTITIONS: 1
+      CONTROL_CENTER_MONITORING_INTERCEPTOR_TOPIC_PARTITIONS: 1
+      CONFLUENT_METRICS_TOPIC_REPLICATION: 1
+      CONTROL_CENTER_LOG4J_ROOT_LOGLEVEL: 'INFO'
+    depends_on:
+      - kafka
+    networks:
+      - green-zaria-network
+
+
+  # Backend Service (Node.js + Kafka Producer/Consumer)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: green-zaria-backend
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    environment:
+      - KAFKA_BROKERS=kafka:29092
+      - PORT=3000
+      - WS_PORT=3001
+      - NODE_ENV=production
+      # Disable SASL for plain connection
+      - KAFKA_SASL_ENABLED=false
+    volumes:
+      - ./backend/uploads:/app/uploads
+    networks:
+      - green-zaria-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Frontend - Nginx serving static HTML files
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: green-zaria-frontend
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    networks:
+      - green-zaria-network
+    restart: unless-stopped
+
+  # # Kafka UI (for monitoring)
+  # kafka-ui:
+  #   image: provectuslabs/kafka-ui:latest
+  #   container_name: green-zaria-kafka-ui
+  #   depends_on:
+  #     kafka:
+  #       condition: service_healthy
+  #   ports:
+  #     - "8090:8080"
+  #   environment:
+  #     DYNAMIC_CONFIG_ENABLED: 'true'
+  #     KAFKA_CLUSTERS_0_NAME: green-zaria-cluster
+  #     KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: PLAINTEXT://kafka:29092
+  #   networks:
+  #     - green-zaria-network
+  #   restart: unless-stopped
+
+networks:
+  green-zaria-network:
+    driver: bridge
+
+volumes:
+  kafka-data:

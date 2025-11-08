@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Zaria - Upload Evidence</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            font-size: 2em;
+            filter: drop-shadow(0 0 10px rgba(46, 204, 113, 0.5));
+        }
+
+        .logo h1 {
+            color: white;
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            background: rgba(46, 204, 113, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-links a.active {
+            background: #2ecc71;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .card-header h1 {
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .card-header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .info-banner {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border-left: 4px solid #2ecc71;
+        }
+
+        .info-banner h3 {
+            color: #27ae60;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-banner p {
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1.05em;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2ecc71;
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+        }
+
+        .helper-text {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+
+        .upload-area {
+            border: 3px dashed #2ecc71;
+            border-radius: 15px;
+            padding: 50px 30px;
+            text-align: center;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .upload-area:hover {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-color: #27ae60;
+            transform: scale(1.02);
+        }
+
+        .upload-area.dragover {
+            background: #d4edda;
+            border-color: #27ae60;
+            transform: scale(1.05);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            color: #2c3e50;
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #7f8c8d;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .preview-container {
+            margin-top: 25px;
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .preview-container.active {
+            display: block;
+        }
+
+        .image-preview {
+            width: 100%;
+            border-radius: 15px;
+            border: 3px solid #2ecc71;
+            margin-bottom: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .file-info {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-name {
+            color: #2c3e50;
+            font-weight: 600;
+            flex: 1;
+            margin-right: 15px;
+        }
+
+        .remove-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .remove-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4);
+        }
+
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 2px solid #2ecc71;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border: 2px solid #e74c3c;
+            color: #721c24;
+        }
+
+        .alert-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-link {
+            margin-top: 20px;
+        }
+
+        .dashboard-link a {
+            color: #2ecc71;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dashboard-link a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .card {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <span class="logo-icon">🌳</span>
+            <h1>Green Zaria</h1>
+        </div>
+        <div class="nav-links">
+            <a href="register.html">📝 Register</a>
+            <a href="index.html">🗺️ Dashboard</a>
+            <a href="upload.html" class="active">📸 Upload</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h1>📸 Upload Evidence</h1>
+                <p>Share photos of your tree planting activities</p>
+            </div>
+
+            <div class="info-banner">
+                <h3>🌟 Make Your Impact Visible!</h3>
+                <p>Upload photos of your tree planting to turn your school's marker green on the map and inspire others.</p>
+            </div>
+
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="schoolId">🆔 School ID</label>
+                    <input type="text" id="schoolId" required placeholder="Enter your school ID" autocomplete="off">
+                    <div class="helper-text">This was provided when your school was registered</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="accessToken">🔑 Access Token</label>
+                    <input type="password" id="accessToken" required placeholder="Enter your access token" autocomplete="off">
+                    <div class="helper-text">Keep this secure - it's your authentication key</div>
+                </div>
+
+                <div class="form-group">
+                    <label>🌳 Tree Planting Photo</label>
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📷</div>
+                        <div class="upload-text">Click to upload or drag and drop</div>
+                        <div class="upload-subtext">PNG, JPG or JPEG (Max 5MB)</div>
+                    </div>
+                    <input type="file" id="fileInput" accept="image/png,image/jpeg,image/jpg">
+                </div>
+
+                <div class="preview-container" id="previewContainer">
+                    <img id="imagePreview" class="image-preview" alt="Preview">
+                    <div class="file-info">
+                        <span class="file-name" id="fileName"></span>
+                        <button type="button" class="remove-btn" id="removeBtn">✕ Remove</button>
+                    </div>
+                </div>
+
+                <div class="alert alert-error" id="errorAlert"></div>
+
+                <button type="submit" class="btn" id="submitBtn" disabled>
+                    <span>Upload Evidence</span>
+                    <span>🚀</span>
+                </button>
+
+                <div class="alert alert-success" id="successAlert">
+                    <div class="alert-icon">✅</div>
+                    <h3 style="margin-bottom: 10px;">Upload Successful!</h3>
+                    <p>Your tree planting evidence has been uploaded. Your school marker is now green on the map!</p>
+                    <div class="dashboard-link">
+                        <a href="index.html">🗺️ View on Dashboard →</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration - works for both Docker and local
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3000' 
+            : `http://${window.location.hostname}:3000`;
+        
+        console.log('📡 API URL:', API_URL);
+        
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const imagePreview = document.getElementById('imagePreview');
+        const fileName = document.getElementById('fileName');
+        const removeBtn = document.getElementById('removeBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorAlert = document.getElementById('errorAlert');
+        const successAlert = document.getElementById('successAlert');
+
+        let selectedFile = null;
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            console.log('📎 File selected:', file.name, file.type, file.size);
+
+            if (!file.type.match('image/(png|jpeg|jpg)')) {
+                showError('Please select a PNG, JPG, or JPEG image');
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                showError('File size must be less than 5MB');
+                return;
+            }
+
+            selectedFile = file;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                fileName.textContent = file.name;
+                previewContainer.classList.add('active');
+                submitBtn.disabled = false;
+                hideError();
+                console.log('✅ File loaded successfully');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        removeBtn.addEventListener('click', () => {
+            selectedFile = null;
+            fileInput.value = '';
+            previewContainer.classList.remove('active');
+            submitBtn.disabled = true;
+            console.log('🗑️ File removed');
+        });
+
+        function showError(message) {
+            errorAlert.textContent = message;
+            errorAlert.classList.add('show');
+            console.error('❌', message);
+            setTimeout(() => errorAlert.classList.remove('show'), 5000);
+        }
+
+        function hideError() {
+            errorAlert.classList.remove('show');
+        }
+
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const schoolId = document.getElementById('schoolId').value.trim();
+            const accessToken = document.getElementById('accessToken').value.trim();
+
+            if (!selectedFile) {
+                showError('Please select an image to upload');
+                return;
+            }
+
+            console.log('📤 Starting upload for school:', schoolId);
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span>Uploading...</span><span>⏳</span>';
+            hideError();
+
+            // CRITICAL: The backend expects 'plantingImage' as the field name
+            const formData = new FormData();
+            formData.append('plantingImage', selectedFile);  // Must match backend multer field name
+            formData.append('accessToken', accessToken);
+
+            try {
+                const uploadUrl = `${API_URL}/api/schools/${schoolId}/upload-planting`;
+                console.log('📡 Uploading to:', uploadUrl);
+
+                const response = await fetch(uploadUrl, {
+                    method: 'POST',
+                    body: formData
+                    // Note: Don't set Content-Type header - browser will set it automatically with boundary
+                });
+
+                const result = await response.json();
+                console.log('📥 Response:', response.status, result);
+
+                if (response.ok) {
+                    console.log('✅ Upload successful!');
+                    successAlert.classList.add('show');
+                    
+                    // Hide form elements
+                    document.getElementById('uploadForm').querySelectorAll('input, .upload-area').forEach(el => {
+                        if (el !== submitBtn) {
+                            el.style.display = 'none';
+                        }
+                    });
+                    document.querySelectorAll('label, .helper-text, .info-banner').forEach(el => {
+                        el.style.display = 'none';
+                    });
+                    previewContainer.style.display = 'none';
+                    submitBtn.style.display = 'none';
+                } else {
+                    showError(result.error || 'Failed to upload evidence');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Upload Evidence</span><span>🚀</span>';
+                }
+            } catch (error) {
+                console.error('❌ Upload error:', error);
+                showError('Failed to upload. Please check:\n\n1. Backend is running on ' + API_URL + '\n2. School ID and Access Token are correct\n3. Network connection is working\n\nError: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>Upload Evidence</span><span>🚀</span>';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Zaria - Register School</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            font-size: 2em;
+            filter: drop-shadow(0 0 10px rgba(46, 204, 113, 0.5));
+        }
+
+        .logo h1 {
+            color: white;
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            background: rgba(46, 204, 113, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-links a.active {
+            background: #2ecc71;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            color: #2c3e50;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card p {
+            color: #7f8c8d;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #2ecc71;
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        #map {
+            height: 500px;
+            border-radius: 15px;
+            border: 3px solid #2ecc71;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .map-instructions {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+        }
+
+        .coordinates-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 15px;
+            border-left: 4px solid #2ecc71;
+        }
+
+        .coordinates-card h3 {
+            color: #2c3e50;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+        }
+
+        .coord-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .coord-label {
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+
+        .coord-value {
+            color: #2c3e50;
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            padding: 16px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.4);
+        }
+
+        .btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            animation: slideUp 0.4s;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .success-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: bounce 0.6s;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 15px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #2ecc71;
+        }
+
+        .info-label {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 1.1em;
+            word-break: break-all;
+        }
+
+        .token-box {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffe5a1 100%);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px dashed #f39c12;
+            margin: 20px 0;
+        }
+
+        .token-value {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            font-size: 1.1em;
+            word-break: break-all;
+            color: #2c3e50;
+        }
+
+        .warning {
+            color: #e74c3c;
+            font-weight: 600;
+            margin-top: 15px;
+            padding: 12px;
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 8px;
+        }
+
+        .copy-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #2980b9;
+        }
+
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <span class="logo-icon">🌳</span>
+            <h1>Green Zaria</h1>
+        </div>
+        <div class="nav-links">
+            <a href="register.html" class="active">📝 Register</a>
+            <a href="index.html">🗺️ Dashboard</a>
+            <a href="upload.html">📸 Upload</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="content-grid">
+            <div class="card">
+                <h2>🏫 School Registration</h2>
+                <p>Join our tree planting initiative! Fill in your school details and select your location on the map.</p>
+
+                <form id="registrationForm">
+                    <div class="form-group">
+                        <label for="schoolName">School Name *</label>
+                        <input type="text" id="schoolName" required placeholder="e.g., Government Secondary School Zaria">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Address *</label>
+                        <textarea id="address" required placeholder="Full address of the school"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contactPerson">Contact Person *</label>
+                        <input type="text" id="contactPerson" required placeholder="Principal or Coordinator">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contactPhone">Contact Phone *</label>
+                        <input type="tel" id="contactPhone" required placeholder="+234 800 000 0000">
+                    </div>
+
+                    <button type="submit" class="btn" id="submitBtn">
+                        <span>Register School</span>
+                        <span>🚀</span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>📍 Select Location</h2>
+                <div class="map-instructions">
+                    <span style="font-size: 1.5em">👆</span>
+                    <span>Click anywhere on the map to select your school's location</span>
+                </div>
+                
+                <div id="map"></div>
+                
+                <div class="coordinates-card" id="coordinatesCard" style="display: none;">
+                    <h3>📌 Selected Coordinates</h3>
+                    <div class="coord-row">
+                        <span class="coord-label">Latitude:</span>
+                        <span class="coord-value" id="latDisplay">-</span>
+                    </div>
+                    <div class="coord-row">
+                        <span class="coord-label">Longitude:</span>
+                        <span class="coord-value" id="lngDisplay">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="successModal">
+        <div class="modal-content">
+            <div class="success-icon">✅</div>
+            <h2 style="color: #2c3e50; margin-bottom: 10px;">Registration Successful!</h2>
+            <p style="color: #7f8c8d;">Your school has been added to Green Zaria</p>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">School ID</div>
+                    <div class="info-value" id="schoolIdDisplay"></div>
+                    <button class="copy-btn" onclick="copyToClipboard('schoolIdDisplay')">📋 Copy</button>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">School Name</div>
+                    <div class="info-value" id="schoolNameDisplay"></div>
+                </div>
+            </div>
+
+            <div class="token-box">
+                <div class="info-label" style="margin-bottom: 10px;">🔑 Access Token</div>
+                <div class="token-value" id="accessTokenDisplay"></div>
+                <button class="copy-btn" onclick="copyToClipboard('accessTokenDisplay')">📋 Copy Token</button>
+            </div>
+
+            <div class="warning">
+                ⚠️ Save this token! You'll need it to upload tree planting photos.
+            </div>
+
+            <button class="btn" onclick="location.reload()" style="margin-top: 25px;">
+                Register Another School
+            </button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // API Configuration - works for both Docker and local
+        const API_URL = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3000' 
+            : `http://${window.location.hostname}:3000`;
+
+        console.log('📡 API URL:', API_URL);
+        
+        const map = L.map('map').setView([11.0892, 7.7186], 13);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        let selectedMarker = null;
+        let selectedCoordinates = null;
+
+        map.on('click', function(e) {
+            const { lat, lng } = e.latlng;
+            
+            if (selectedMarker) {
+                map.removeLayer(selectedMarker);
+            }
+            
+            selectedMarker = L.marker([lat, lng], {
+                icon: L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                })
+            }).addTo(map);
+            
+            selectedMarker.bindPopup('📍 Selected Location').openPopup();
+            
+            selectedCoordinates = { lat, lng };
+            
+            document.getElementById('latDisplay').textContent = lat.toFixed(6);
+            document.getElementById('lngDisplay').textContent = lng.toFixed(6);
+            document.getElementById('coordinatesCard').style.display = 'block';
+            
+            console.log('📍 Location selected:', selectedCoordinates);
+        });
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ Copied to clipboard!');
+            }).catch(err => {
+                console.error('Copy failed:', err);
+                // Fallback for older browsers
+                const el = document.createElement('textarea');
+                el.value = text;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+                alert('✅ Copied to clipboard!');
+            });
+        }
+
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!selectedCoordinates) {
+                alert('⚠️ Please select a location on the map!');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span>Registering...</span><span>⏳</span>';
+
+            const formData = {
+                name: document.getElementById('schoolName').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                contactPerson: document.getElementById('contactPerson').value.trim(),
+                contactPhone: document.getElementById('contactPhone').value.trim(),
+                coordinates: selectedCoordinates
+            };
+
+            console.log('📤 Sending registration:', formData);
+
+            try {
+                const response = await fetch(`${API_URL}/api/schools/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                console.log('📥 Response:', result);
+
+                if (response.ok) {
+                    document.getElementById('schoolIdDisplay').textContent = result.schoolId;
+                    document.getElementById('schoolNameDisplay').textContent = formData.name;
+                    document.getElementById('accessTokenDisplay').textContent = result.accessToken;
+                    document.getElementById('successModal').classList.add('active');
+                    
+                    console.log('✅ School registered successfully');
+                } else {
+                    alert('❌ Error: ' + (result.error || 'Registration failed'));
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>Register School</span><span>🚀</span>';
+                }
+            } catch (error) {
+                console.error('❌ Registration error:', error);
+                alert('❌ Failed to register school. Please check:\n\n1. Backend is running on ' + API_URL + '\n2. Kafka is running\n3. Network connection is working\n\nError: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>Register School</span><span>🚀</span>';
+            }
+        });
+    </script>
+</body>
+</html>
