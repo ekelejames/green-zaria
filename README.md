@@ -852,4 +852,4 @@ If you find this project helpful, please consider:
 
 **Made with 💚 for a greener Zaria**
 
-**Green Zaria Initiative** - Making Zaria Greener, One Tree at a Time! 🌳
+**Green Zaria Initiative** - Making Zaria Greener, One Tree at a Time! 🌳. Thank you
